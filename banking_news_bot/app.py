@@ -5,16 +5,16 @@ import sys
 
 from .feed_reader import fetch_all
 from .filtering import select_items
-from .formatter import build_messages
+from .formatter import build_message_chunks
 from .gemini import GeminiError, polish_items
 from .settings import load_settings, load_sources
-from .state import BotState, item_id
+from .state import BotState, item_fingerprint, item_id
 from .telegram import send_message
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Collect banking current affairs and post a Telegram digest."
+        description="Collect current affairs and post a Telegram digest."
     )
     parser.add_argument("--dry-run", action="store_true", help="Print Telegram message only.")
     parser.add_argument("--max-items", type=int, help="Maximum news items to include.")
@@ -57,14 +57,16 @@ def main(argv: list[str] | None = None) -> int:
         fetched_items,
         sources,
         state.seen_ids(),
+        state.seen_fingerprints(),
         item_id,
+        item_fingerprint,
         max_items=max_items,
         min_score=min_score,
         lookback_hours=lookback_hours,
     )
 
     if not selected_items:
-        print("No new banking current-affairs items matched the filters.")
+        print("No new current-affairs items matched the filters.")
         return 0
 
     if settings.gemini_enabled and settings.gemini_api_key:
@@ -74,7 +76,8 @@ def main(argv: list[str] | None = None) -> int:
         except GeminiError as exc:
             print(f"Warning: {exc}. Continuing with normal template.", file=sys.stderr)
 
-    messages = build_messages(selected_items)
+    message_chunks = build_message_chunks(selected_items)
+    messages = [message for message, _items in message_chunks]
     if dry_run:
         print_dry_run(messages)
         return 0
@@ -87,14 +90,16 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
 
-    for message in messages:
+    posted_count = 0
+    for message, chunk_items in message_chunks:
         send_message(
             settings.telegram_bot_token,
             settings.telegram_chat_id,
             message,
             disable_web_page_preview=settings.disable_web_page_preview,
         )
+        state.mark_posted(chunk_items)
+        posted_count += len(chunk_items)
 
-    state.mark_posted(selected_items)
-    print(f"Posted {len(selected_items)} items in {len(messages)} Telegram message(s).")
+    print(f"Posted {posted_count} items in {len(message_chunks)} Telegram message(s).")
     return 0

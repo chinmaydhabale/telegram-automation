@@ -43,7 +43,7 @@ TELEGRAM_CHAT_ID=@your_channel_username
 GEMINI_API_KEY=optional_google_ai_studio_key
 ```
 
-`GEMINI_API_KEY` optional hai. Empty rahe to normal template post hoga. Key set karoge to bot raw RSS items ko Gemini se exam-ready Hinglish me polish karega: `Kya hua`, `Exam angle`, aur `Yaad rakhein`.
+`GEMINI_API_KEY` optional hai. Empty rahe to normal template post hoga. Key set karoge to bot raw RSS items ko Gemini se detailed exam-ready English me polish karega: `What happened`, `Exam angle`, aur `Remember`.
 
 4. Dry run karke template preview dekho:
 
@@ -100,5 +100,7 @@ py -3 -B -m banking_news_bot --check-config
 - Ranking keywords: [banking_news_bot/filtering.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/filtering.py)
 - Telegram template: [banking_news_bot/formatter.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/formatter.py)
 - Gemini polish prompt/API: [banking_news_bot/gemini.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/gemini.py)
+
+Duplicate protection: bot source link IDs ke saath title fingerprints bhi store karta hai in `data/posted_state.json`. Agar ek Telegram message send ho chuka ho aur later chunk fail ho jaye, sent items turant state me mark ho jaate hain so next run me repost nahi hote.
 
 Note: "Pure internet" ko practical aur reliable banane ke liye bot official feeds plus Google News RSS search use karta hai. Isse scraping-heavy approach se better stability milti hai.

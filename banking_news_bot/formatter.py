@@ -7,7 +7,7 @@ from .models import NewsItem
 
 UTC = timezone.utc
 MAX_TELEGRAM_LENGTH = 4096
-SAFE_TELEGRAM_LENGTH = 3750
+SAFE_TELEGRAM_LENGTH = 3650
 IST = timezone(timedelta(hours=5, minutes=30), "IST")
 
 CATEGORY_BADGES: dict[str, str] = {
@@ -48,16 +48,16 @@ def shorten(value: str, limit: int) -> str:
 
 def summary_for(item: NewsItem) -> str:
     if item.ai_summary:
-        return shorten(item.ai_summary, 320)
-    summary = shorten(item.summary, 260)
+        return shorten(item.ai_summary, 520)
+    summary = shorten(item.summary, 420)
     if summary:
         return summary
-    return "Short official/news update. Detail source link par available hai."
+    return "A short official/news update is available. Open the source link for full details."
 
 
 def exam_point_for(item: NewsItem) -> str:
     if item.ai_exam_point:
-        return shorten(item.ai_exam_point, 220)
+        return shorten(item.ai_exam_point, 280)
     if item.tags:
         return ", ".join(CATEGORY_BADGES.get(tag, tag) for tag in item.tags)
     if item.category:
@@ -67,7 +67,7 @@ def exam_point_for(item: NewsItem) -> str:
 
 def remember_for(item: NewsItem) -> str:
     if item.ai_remember:
-        return shorten(item.ai_remember, 180)
+        return shorten(item.ai_remember, 220)
     if item.tags:
         return ", ".join(item.tags[:3])
     return item.category or "Current Affairs"
@@ -87,9 +87,9 @@ def render_item(index: int, item: NewsItem) -> str:
     lines = [
         f"<b>{index}. {escape(shorten(item.title, 180))}</b>",
         f"<b>Category:</b> {escape(primary_badge(item))}",
-        f"<b>Kya hua:</b> {escape(summary_for(item))}",
+        f"<b>What happened:</b> {escape(summary_for(item))}",
         f"<b>Exam angle:</b> {escape(exam_point_for(item))}",
-        f"<b>Yaad rakhein:</b> {escape(remember_for(item))}",
+        f"<b>Remember:</b> {escape(remember_for(item))}",
         f"<b>Source:</b> {source_line}",
     ]
     if link_line:
@@ -111,27 +111,35 @@ def footer() -> str:
     return "\n#CurrentAffairs #BankingAwareness #ExamPrep #RBI #GK"
 
 
-def build_messages(items: list[NewsItem]) -> list[str]:
+def build_message_chunks(items: list[NewsItem]) -> list[tuple[str, list[NewsItem]]]:
     if not items:
         return []
 
-    blocks = [render_item(index, item) for index, item in enumerate(items, start=1)]
-    chunks: list[list[str]] = [[]]
+    blocks = [
+        (render_item(index, item), item) for index, item in enumerate(items, start=1)
+    ]
+    chunks: list[list[tuple[str, NewsItem]]] = [[]]
     current_len = 0
-    for block in blocks:
+    for block, item in blocks:
         extra_len = len(block) + 2
         if chunks[-1] and current_len + extra_len > SAFE_TELEGRAM_LENGTH:
             chunks.append([])
             current_len = 0
-        chunks[-1].append(block)
+        chunks[-1].append((block, item))
         current_len += extra_len
 
     now = datetime.now(IST)
-    messages: list[str] = []
+    messages: list[tuple[str, list[NewsItem]]] = []
     total_parts = len(chunks)
     for part, chunk in enumerate(chunks, start=1):
-        message = header(now, part, total_parts) + "\n" + "\n\n".join(chunk) + footer()
+        block_texts = [block for block, _item in chunk]
+        chunk_items = [item for _block, item in chunk]
+        message = header(now, part, total_parts) + "\n" + "\n\n".join(block_texts) + footer()
         if len(message) > MAX_TELEGRAM_LENGTH:
             message = message[: MAX_TELEGRAM_LENGTH - 3] + "..."
-        messages.append(message)
+        messages.append((message, chunk_items))
     return messages
+
+
+def build_messages(items: list[NewsItem]) -> list[str]:
+    return [message for message, _items in build_message_chunks(items)]

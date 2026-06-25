@@ -428,7 +428,9 @@ def select_items(
     items: list[NewsItem],
     sources: list[Source],
     seen_ids: set[str],
+    seen_fingerprints: set[str],
     item_id,
+    item_fingerprint,
     max_items: int,
     min_score: int,
     lookback_hours: int,
@@ -442,10 +444,12 @@ def select_items(
             continue
         if item_id(item) in seen_ids:
             continue
+        fingerprint = item_fingerprint(item)
+        if fingerprint in seen_fingerprints:
+            continue
         score = score_item(item, source_lookup)
         if score < min_score:
             continue
-        fingerprint = normalize_title(item.title)
         if fingerprint in fingerprints:
             continue
         fingerprints.add(fingerprint)
