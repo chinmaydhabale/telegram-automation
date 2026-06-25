@@ -1,126 +1,91 @@
 [
   {
-    "name": "RBI Press Releases",
-    "url": "https://www.rbi.org.in/pressreleases_rss.xml",
-    "category": "Banking",
-    "weight": 8,
-    "enabled": true
-  },
-  {
-    "name": "RBI Notifications",
-    "url": "https://www.rbi.org.in/notifications_rss.xml",
-    "category": "Banking",
-    "weight": 8,
-    "enabled": true
-  },
-  {
-    "name": "RBI Publications",
-    "url": "https://www.rbi.org.in/Publication_rss.xml",
-    "category": "Banking",
-    "weight": 6,
-    "enabled": true
-  },
-  {
-    "name": "SEBI RSS",
-    "url": "https://www.sebi.gov.in/sebirss.xml",
-    "category": "Economy",
-    "weight": 4,
-    "enabled": true
-  },
-  {
-    "name": "PIB Press Releases",
-    "url": "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=1",
-    "category": "National & International News",
-    "weight": 4,
-    "enabled": true
-  },
-  {
     "name": "Google News - Banking",
-    "url": "https://news.google.com/rss/search?q=RBI%20banking%20UPI%20NBFC%20India%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20RBI%20banking%20UPI%20NBFC%20India%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Banking",
     "weight": 4,
     "enabled": true
   },
   {
     "name": "Google News - Economy",
-    "url": "https://news.google.com/rss/search?q=India%20economy%20GDP%20inflation%20fiscal%20deficit%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20economy%20GDP%20inflation%20fiscal%20deficit%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Economy",
     "weight": 4,
     "enabled": true
   },
   {
     "name": "Google News - Budget",
-    "url": "https://news.google.com/rss/search?q=India%20Union%20Budget%20GST%20Council%20income%20tax%20CBDT%20CBIC%20Finance%20Ministry%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20Union%20Budget%20GST%20Council%20income%20tax%20CBDT%20CBIC%20Finance%20Ministry%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Budget",
     "weight": 4,
     "enabled": true
   },
   {
     "name": "Google News - RBI Monetary Policy",
-    "url": "https://news.google.com/rss/search?q=RBI%20monetary%20policy%20MPC%20repo%20rate%20when%3A7d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20RBI%20monetary%20policy%20MPC%20repo%20rate%20when%3A7d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "RBI Monetary Policy",
     "weight": 5,
     "enabled": true
   },
   {
     "name": "Google News - Government Schemes",
-    "url": "https://news.google.com/rss/search?q=India%20government%20scheme%20yojana%20launched%20ministry%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20government%20scheme%20yojana%20launched%20ministry%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Government Schemes",
     "weight": 4,
     "enabled": true
   },
   {
     "name": "Google News - Sports",
-    "url": "https://news.google.com/rss/search?q=India%20sports%20wins%20championship%20tournament%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20sports%20wins%20championship%20tournament%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Sports",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - Awards",
-    "url": "https://news.google.com/rss/search?q=India%20award%20prize%20conferred%20honour%20when%3A7d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20award%20prize%20conferred%20honour%20when%3A7d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Awards",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - Appointments",
-    "url": "https://news.google.com/rss/search?q=India%20appointed%20chairman%20CEO%20governor%20president%20when%3A7d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20appointed%20chairman%20CEO%20governor%20president%20when%3A7d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Appointments",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - International Organizations",
-    "url": "https://news.google.com/rss/search?q=India%20%28UN%20OR%20IMF%20OR%20%22World%20Bank%22%20OR%20BRICS%20OR%20SCO%20OR%20ASEAN%20OR%20G20%29%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20%28UN%20OR%20IMF%20OR%20%22World%20Bank%22%20OR%20BRICS%20OR%20SCO%20OR%20ASEAN%20OR%20G20%29%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "International Organizations",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - Science Technology",
-    "url": "https://news.google.com/rss/search?q=India%20science%20technology%20ISRO%20AI%20space%20satellite%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20science%20technology%20ISRO%20AI%20space%20satellite%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Science & Technology",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - Defence Exercises",
-    "url": "https://news.google.com/rss/search?q=India%20%28%22Exercise%22%20OR%20%22Ex%22%29%20%28Army%20OR%20Navy%20OR%20Air%20Force%29%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20%28%22Exercise%22%20OR%20%22Ex%22%29%20%28Army%20OR%20Navy%20OR%20Air%20Force%29%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Defence Exercises",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - Books Authors",
-    "url": "https://news.google.com/rss/search?q=India%20%28%22launches%20book%22%20OR%20%22book%20titled%22%20OR%20%22releases%20book%22%29%20author%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20%28%22launches%20book%22%20OR%20%22book%20titled%22%20OR%20%22releases%20book%22%29%20author%20when%3A14d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "Books & Authors",
     "weight": 3,
     "enabled": true
   },
   {
     "name": "Google News - National International",
-    "url": "https://news.google.com/rss/search?q=India%20%28Cabinet%20OR%20Parliament%20OR%20%22Supreme%20Court%22%20OR%20President%20OR%20bill%20OR%20act%29%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
+    "url": "https://news.google.com/rss/search?q=site%3Alivemint.com%20India%20%28Cabinet%20OR%20Parliament%20OR%20%22Supreme%20Court%22%20OR%20President%20OR%20bill%20OR%20act%29%20when%3A2d&hl=en-IN&gl=IN&ceid=IN%3Aen",
     "category": "National & International News",
     "weight": 3,
     "enabled": true

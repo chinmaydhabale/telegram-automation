@@ -54,8 +54,24 @@ def fetch_article_text(url: str, timeout: int = 15, max_chars: int = 2200) -> st
     return text[:max_chars]
 
 
+def decode_link(link: str) -> str:
+    link = (link or "").strip()
+    if not link:
+        return ""
+    if link.startswith("https://news.google.com/"):
+        try:
+            import googlenewsdecoder
+            decoded = googlenewsdecoder.gnewsdecoder(link)
+            if isinstance(decoded, dict) and decoded.get("status"):
+                return decoded.get("decoded_url", link)
+        except Exception:
+            pass
+    return link
+
+
 def enrich_item(item: NewsItem) -> tuple[NewsItem, str | None]:
     try:
+        item.link = decode_link(item.link)
         item.source_excerpt = fetch_article_text(item.link)
         return item, None
     except Exception as exc:  # noqa: BLE001 - article extraction is best effort.

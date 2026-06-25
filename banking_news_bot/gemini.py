@@ -39,9 +39,9 @@ def build_polish_prompt(items: list[NewsItem]) -> str:
         "- Avoid hype, clickbait, stock tips, and unnecessary adjectives.\n"
         "- Output schema: {\"items\":[{\"id\":0,\"summary\":\"...\",\"exam_point\":\"...\",\"remember\":\"...\"}]}\n"
         "Field meanings:\n"
-        "- summary: 2-3 clear lines explaining what happened and why it matters.\n"
-        "- exam_point: what exam angle can be asked from this update.\n"
-        "- remember: one crisp fact, keyword, institution, or phrase to remember.\n\n"
+        "- summary: 2-3 clear lines explaining what happened and why it matters. Include concrete numbers, rates, and percentages if present.\n"
+        "- exam_point: what exam angle can be asked from this update (e.g. 'Which organization launched X?', 'Who is appointed as Y?').\n"
+        "- remember: one crisp fact, key rate, percentage, or static GK details (like related organization headquarters, establishment year, or current chief/person) to memorize.\n\n"
         "Items:\n"
         f"{json.dumps(payload, ensure_ascii=False)}"
     )
@@ -55,7 +55,7 @@ def build_selection_prompt(items: list[NewsItem], max_items: int) -> str:
         "Return ONLY valid JSON. Do not wrap in markdown.\n\n"
         "Selection rules:\n"
         "- Select only genuinely important current-affairs items from the provided candidates.\n"
-        "- Prefer updates useful for banking exams, government exams, RBI/economy, schemes, appointments, awards, sports, defence, science, and international organizations.\n"
+        "- Focus heavily on banking/financial news, RBI guidelines/circulars, digital payment updates (NPCI/UPI), GDP forecasts, government schemes, and corporate/national appointments.\n"
         "- Reject old-looking, evergreen, generic listicle, entertainment gossip, stock-tip, routine local, or low-value items.\n"
         "- If no candidate is important enough, return {\"items\":[]}.\n"
         f"- Select at most {max_items} items.\n\n"
@@ -68,12 +68,13 @@ def build_selection_prompt(items: list[NewsItem], max_items: int) -> str:
         "Output schema:\n"
         "{\"items\":[{\"id\":0,\"summary\":\"...\",\"exam_point\":\"...\",\"remember\":\"...\"}]}\n\n"
         "Field requirements:\n"
-        "- summary: 3-5 sentences explaining what happened, key details, and why it matters.\n"
-        "- exam_point: 1-2 sentences on how this can be asked in exams.\n"
-        "- remember: one crisp fact, institution, scheme, date, name, keyword, or phrase.\n\n"
+        "- summary: 3-5 sentences explaining what happened, key details, and why it matters. Make sure to capture concrete numbers, rates, percentages, and committee names if present.\n"
+        "- exam_point: 1-2 sentences on how this can be asked in exams (e.g. 'Which bank launched X?', 'What is the revised Repo Rate?').\n"
+        "- remember: one crisp fact, key rate, percentage, or static GK details (such as related organization headquarters, establishment year, or current chief/person) to memorize.\n\n"
         "Candidates:\n"
         f"{json.dumps(payload, ensure_ascii=False)}"
     )
+
 
 
 def extract_text(response: dict) -> str:
@@ -87,15 +88,46 @@ def extract_text(response: dict) -> str:
     return text.strip()
 
 
+def extract_json_block(text: str) -> str:
+    start = text.find('{')
+    if start == -1:
+        return text
+    brace_count = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(text)):
+        char = text[i]
+        if escape:
+            escape = False
+            continue
+        if char == '\\':
+            escape = True
+            continue
+        if char == '"':
+            in_string = not in_string
+            continue
+        if not in_string:
+            if char == '{':
+                brace_count += 1
+            elif char == '}':
+                brace_count -= 1
+                if brace_count == 0:
+                    return text[start:i+1]
+    return text[start:]
+
+
 def parse_json_text(text: str) -> dict:
     cleaned = text.strip()
     if cleaned.startswith("```"):
         cleaned = cleaned.strip("`")
         if cleaned.lower().startswith("json"):
             cleaned = cleaned[4:].strip()
+    cleaned = extract_json_block(cleaned)
     try:
         return json.loads(cleaned)
     except json.JSONDecodeError as exc:
+        import sys
+        print(f"DEBUG: Gemini raw text was:\n{text}", file=sys.stderr)
         raise GeminiError("Gemini returned invalid JSON") from exc
 
 

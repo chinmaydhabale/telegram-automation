@@ -98,6 +98,9 @@ def main(argv: list[str] | None = None) -> int:
             min_score=min_score,
             lookback_hours=lookback_hours,
         )
+        from .article_reader import decode_link
+        for item in selected_items:
+            item.link = decode_link(item.link)
 
     if not selected_items:
         print("No latest important news selected. Nothing to post.")

@@ -316,6 +316,14 @@ EXCLUDE_PATTERNS = (
     "multibagger",
     "ipo allotment",
     "quarterly results",
+    "variable rate repo",
+    "variable rate reverse repo",
+    "treasury bills auction",
+    "91-day treasury bills",
+    "182-day treasury bills",
+    "364-day treasury bills",
+    "re-issue of government",
+    "liquidity adjustment facility",
 )
 
 NON_WORD_RE = re.compile(r"[^a-z0-9]+")
@@ -510,4 +518,14 @@ def candidate_items(
         ),
         reverse=True,
     )
-    return candidates[:max_candidates]
+
+    diverse_candidates: list[NewsItem] = []
+    feed_counts: dict[str, int] = {}
+    for item in candidates:
+        if len(diverse_candidates) >= max_candidates:
+            break
+        count = feed_counts.get(item.feed_name, 0)
+        if count < 6:
+            diverse_candidates.append(item)
+            feed_counts[item.feed_name] = count + 1
+    return diverse_candidates
