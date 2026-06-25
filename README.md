@@ -40,7 +40,10 @@ notepad .env
 ```env
 TELEGRAM_BOT_TOKEN=your_bot_token
 TELEGRAM_CHAT_ID=@your_channel_username
+GEMINI_API_KEY=optional_google_ai_studio_key
 ```
+
+`GEMINI_API_KEY` optional hai. Empty rahe to normal template post hoga. Key set karoge to bot raw RSS items ko Gemini se exam-ready Hinglish me polish karega: `Kya hua`, `Exam angle`, aur `Yaad rakhein`.
 
 4. Dry run karke template preview dekho:
 
@@ -96,5 +99,6 @@ py -3 -B -m banking_news_bot --check-config
 - Duplicate post state: `data/posted_state.json`
 - Ranking keywords: [banking_news_bot/filtering.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/filtering.py)
 - Telegram template: [banking_news_bot/formatter.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/formatter.py)
+- Gemini polish prompt/API: [banking_news_bot/gemini.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/gemini.py)
 
 Note: "Pure internet" ko practical aur reliable banane ke liye bot official feeds plus Google News RSS search use karta hai. Isse scraping-heavy approach se better stability milti hai.

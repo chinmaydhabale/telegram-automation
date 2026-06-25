@@ -6,6 +6,7 @@ import sys
 from .feed_reader import fetch_all
 from .filtering import select_items
 from .formatter import build_messages
+from .gemini import GeminiError, polish_items
 from .settings import load_settings, load_sources
 from .state import BotState, item_id
 from .telegram import send_message
@@ -65,6 +66,13 @@ def main(argv: list[str] | None = None) -> int:
     if not selected_items:
         print("No new banking current-affairs items matched the filters.")
         return 0
+
+    if settings.gemini_enabled and settings.gemini_api_key:
+        try:
+            print(f"Polishing {len(selected_items)} items with Gemini...")
+            polish_items(selected_items, settings.gemini_api_key, settings.gemini_model)
+        except GeminiError as exc:
+            print(f"Warning: {exc}. Continuing with normal template.", file=sys.stderr)
 
     messages = build_messages(selected_items)
     if dry_run:

@@ -24,3 +24,6 @@ class NewsItem:
     published_at: datetime | None = None
     score: int = 0
     tags: list[str] = field(default_factory=list)
+    ai_summary: str = ""
+    ai_exam_point: str = ""
+    ai_remember: str = ""

@@ -62,6 +62,9 @@ def env_int(name: str, default: int) -> int:
 class Settings:
     telegram_bot_token: str
     telegram_chat_id: str
+    gemini_api_key: str
+    gemini_model: str
+    gemini_enabled: bool
     max_items: int
     lookback_hours: int
     min_score: int
@@ -76,7 +79,10 @@ def load_settings() -> Settings:
     return Settings(
         telegram_bot_token=os.getenv("TELEGRAM_BOT_TOKEN", "").strip(),
         telegram_chat_id=os.getenv("TELEGRAM_CHAT_ID", "").strip(),
-        max_items=env_int("MAX_ITEMS", 7),
+        gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
+        gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite").strip(),
+        gemini_enabled=env_bool("GEMINI_ENABLED", True),
+        max_items=env_int("MAX_ITEMS", 15),
         lookback_hours=env_int("LOOKBACK_HOURS", 168),
         min_score=env_int("MIN_SCORE", 4),
         dry_run=env_bool("DRY_RUN", False),

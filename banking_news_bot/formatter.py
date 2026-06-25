@@ -11,19 +11,19 @@ SAFE_TELEGRAM_LENGTH = 3750
 IST = timezone(timedelta(hours=5, minutes=30), "IST")
 
 CATEGORY_BADGES: dict[str, str] = {
-    "Banking": "🏦 Banking",
-    "Economy": "💰 Economy",
-    "Budget": "📈 Budget",
-    "RBI Monetary Policy": "📊 RBI Monetary Policy",
-    "Government Schemes": "🇮🇳 Government Schemes",
-    "Sports": "🏆 Sports",
-    "Awards": "🥇 Awards",
-    "Appointments": "👤 Appointments",
-    "International Organizations": "🌍 International Organizations",
-    "Science & Technology": "🚀 Science & Technology",
-    "Defence Exercises": "🛡 Defence Exercises",
-    "Books & Authors": "📚 Books & Authors",
-    "National & International News": "📰 National & International News",
+    "Banking": "\U0001f3e6 Banking",
+    "Economy": "\U0001f4b0 Economy",
+    "Budget": "\U0001f4c8 Budget",
+    "RBI Monetary Policy": "\U0001f4ca RBI Monetary Policy",
+    "Government Schemes": "\U0001f1ee\U0001f1f3 Government Schemes",
+    "Sports": "\U0001f3c6 Sports",
+    "Awards": "\U0001f947 Awards",
+    "Appointments": "\U0001f464 Appointments",
+    "International Organizations": "\U0001f30d International Organizations",
+    "Science & Technology": "\U0001f680 Science & Technology",
+    "Defence Exercises": "\U0001f6e1 Defence Exercises",
+    "Books & Authors": "\U0001f4da Books & Authors",
+    "National & International News": "\U0001f4f0 National & International News",
 }
 
 
@@ -47,6 +47,8 @@ def shorten(value: str, limit: int) -> str:
 
 
 def summary_for(item: NewsItem) -> str:
+    if item.ai_summary:
+        return shorten(item.ai_summary, 320)
     summary = shorten(item.summary, 260)
     if summary:
         return summary
@@ -54,11 +56,21 @@ def summary_for(item: NewsItem) -> str:
 
 
 def exam_point_for(item: NewsItem) -> str:
+    if item.ai_exam_point:
+        return shorten(item.ai_exam_point, 220)
     if item.tags:
         return ", ".join(CATEGORY_BADGES.get(tag, tag) for tag in item.tags)
     if item.category:
         return CATEGORY_BADGES.get(item.category, item.category)
     return CATEGORY_BADGES["National & International News"]
+
+
+def remember_for(item: NewsItem) -> str:
+    if item.ai_remember:
+        return shorten(item.ai_remember, 180)
+    if item.tags:
+        return ", ".join(item.tags[:3])
+    return item.category or "Current Affairs"
 
 
 def primary_badge(item: NewsItem) -> str:
@@ -76,7 +88,8 @@ def render_item(index: int, item: NewsItem) -> str:
         f"<b>{index}. {escape(shorten(item.title, 180))}</b>",
         f"<b>Category:</b> {escape(primary_badge(item))}",
         f"<b>Kya hua:</b> {escape(summary_for(item))}",
-        f"<b>Exam point:</b> {escape(exam_point_for(item))}",
+        f"<b>Exam angle:</b> {escape(exam_point_for(item))}",
+        f"<b>Yaad rakhein:</b> {escape(remember_for(item))}",
         f"<b>Source:</b> {source_line}",
     ]
     if link_line:
