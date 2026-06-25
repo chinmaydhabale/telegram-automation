@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
 from .models import NewsItem, Source
 
+UTC = timezone.utc
 CATEGORY_ORDER: tuple[str, ...] = (
     "Banking",
     "Economy",

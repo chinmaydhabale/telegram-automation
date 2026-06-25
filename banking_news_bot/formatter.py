@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import html
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 from .models import NewsItem
 
+UTC = timezone.utc
 MAX_TELEGRAM_LENGTH = 4096
 SAFE_TELEGRAM_LENGTH = 3750
 IST = timezone(timedelta(hours=5, minutes=30), "IST")

@@ -3,13 +3,14 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 from .filtering import normalize_title
 from .models import NewsItem
 
+UTC = timezone.utc
 
 def canonical_link(link: str) -> str:
     if not link:
