@@ -71,6 +71,35 @@ Task Scheduler me task name `ExamCurrentAffairsBot` hoga. Time change karna ho t
 powershell -ExecutionPolicy Bypass -File .\scripts\install_windows_task.ps1 -TaskName ExamCurrentAffairsBot -At 18:30
 ```
 
+## Linux/VPS Automation
+
+Oracle VPS par default automation din me 2 baar run hota hai:
+
+- 08:00 AM IST
+- 08:00 PM IST
+
+Install:
+
+```bash
+cd ~/apps/telegram-automation
+bash scripts/install_linux_cron.sh
+```
+
+Custom schedule, for example 3 baar daily:
+
+```bash
+bash scripts/install_linux_cron.sh 07:00 14:00 20:00
+```
+
+Cron har run me latest news fetch karega, Gemini enabled hai to content polish karega, aur sirf new items Telegram me post karega. Agar new news nahi mili to bot kuch post nahi karega. Duplicate protection `data/posted_state.json` me source IDs aur title fingerprints save karke repeat posts rokta hai.
+
+Check automation:
+
+```bash
+crontab -l
+tail -f ~/apps/telegram-automation/data/bot.log
+```
+
 ## Useful Commands
 
 Preview latest current affairs:
