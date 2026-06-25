@@ -14,8 +14,9 @@ class GeminiError(RuntimeError):
 def item_payload(item: NewsItem, index: int) -> dict:
     return {
         "id": index,
-        "title": item.title,
-        "summary": item.summary,
+        "title": item.title[:300],
+        "summary": item.summary[:1000],
+        "source_excerpt": item.source_excerpt[:2200],
         "category": item.category,
         "tags": item.tags,
         "source": item.source,
@@ -23,7 +24,7 @@ def item_payload(item: NewsItem, index: int) -> dict:
     }
 
 
-def build_prompt(items: list[NewsItem]) -> str:
+def build_polish_prompt(items: list[NewsItem]) -> str:
     payload = [item_payload(item, index) for index, item in enumerate(items)]
     return (
         "You rewrite current-affairs news for an Indian banking/exam Telegram channel.\n"
@@ -42,6 +43,35 @@ def build_prompt(items: list[NewsItem]) -> str:
         "- exam_point: what exam angle can be asked from this update.\n"
         "- remember: one crisp fact, keyword, institution, or phrase to remember.\n\n"
         "Items:\n"
+        f"{json.dumps(payload, ensure_ascii=False)}"
+    )
+
+
+def build_selection_prompt(items: list[NewsItem], max_items: int) -> str:
+    payload = [item_payload(item, index) for index, item in enumerate(items)]
+    return (
+        "You are the editor of an Indian competitive-exam current affairs Telegram channel.\n"
+        "You must decide which items are worth posting and then write the final post fields.\n"
+        "Return ONLY valid JSON. Do not wrap in markdown.\n\n"
+        "Selection rules:\n"
+        "- Select only genuinely important current-affairs items from the provided candidates.\n"
+        "- Prefer updates useful for banking exams, government exams, RBI/economy, schemes, appointments, awards, sports, defence, science, and international organizations.\n"
+        "- Reject old-looking, evergreen, generic listicle, entertainment gossip, stock-tip, routine local, or low-value items.\n"
+        "- If no candidate is important enough, return {\"items\":[]}.\n"
+        f"- Select at most {max_items} items.\n\n"
+        "Writing rules:\n"
+        "- Write everything in clear English only.\n"
+        "- Use only the given title, feed summary, source, and source_excerpt. Do not invent details.\n"
+        "- Use source_excerpt when available to make the post more detailed and useful.\n"
+        "- Keep Telegram formatting concise, factual, and exam-focused.\n"
+        "- Do not mention that you are using AI or that content is missing.\n\n"
+        "Output schema:\n"
+        "{\"items\":[{\"id\":0,\"summary\":\"...\",\"exam_point\":\"...\",\"remember\":\"...\"}]}\n\n"
+        "Field requirements:\n"
+        "- summary: 3-5 sentences explaining what happened, key details, and why it matters.\n"
+        "- exam_point: 1-2 sentences on how this can be asked in exams.\n"
+        "- remember: one crisp fact, institution, scheme, date, name, keyword, or phrase.\n\n"
+        "Candidates:\n"
         f"{json.dumps(payload, ensure_ascii=False)}"
     )
 
@@ -82,7 +112,7 @@ def polish_items(items: list[NewsItem], api_key: str, model: str) -> None:
         "contents": [
             {
                 "role": "user",
-                "parts": [{"text": build_prompt(items)}],
+            "parts": [{"text": build_polish_prompt(items)}],
             }
         ],
         "generationConfig": {
@@ -115,3 +145,64 @@ def polish_items(items: list[NewsItem], api_key: str, model: str) -> None:
         item.ai_summary = str(polished.get("summary", "")).strip()
         item.ai_exam_point = str(polished.get("exam_point", "")).strip()
         item.ai_remember = str(polished.get("remember", "")).strip()
+
+
+def select_and_write_items(
+    candidates: list[NewsItem],
+    api_key: str,
+    model: str,
+    max_items: int,
+) -> list[NewsItem]:
+    if not candidates or not api_key:
+        return []
+
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{urllib.parse.quote(model)}:generateContent"
+        f"?key={urllib.parse.quote(api_key)}"
+    )
+    body = {
+        "contents": [
+            {
+                "role": "user",
+                "parts": [{"text": build_selection_prompt(candidates, max_items)}],
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.2,
+            "responseMimeType": "application/json",
+        },
+    }
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        raise GeminiError(f"Gemini request failed: {exc}") from exc
+
+    parsed = parse_json_text(extract_text(result))
+    selected: list[NewsItem] = []
+    seen_indexes: set[int] = set()
+    for polished in parsed.get("items", []):
+        try:
+            index = int(polished.get("id"))
+        except (TypeError, ValueError):
+            continue
+        if index in seen_indexes or index < 0 or index >= len(candidates):
+            continue
+        item = candidates[index]
+        item.ai_summary = str(polished.get("summary", "")).strip()
+        item.ai_exam_point = str(polished.get("exam_point", "")).strip()
+        item.ai_remember = str(polished.get("remember", "")).strip()
+        if item.ai_summary:
+            selected.append(item)
+            seen_indexes.add(index)
+        if len(selected) >= max_items:
+            break
+    return selected

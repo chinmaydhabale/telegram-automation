@@ -435,32 +435,16 @@ def select_items(
     min_score: int,
     lookback_hours: int,
 ) -> list[NewsItem]:
-    source_lookup = {source.name: source for source in sources}
-    candidates: list[NewsItem] = []
-    fingerprints: set[str] = set()
-
-    for item in items:
-        if not is_recent(item, lookback_hours):
-            continue
-        if item_id(item) in seen_ids:
-            continue
-        fingerprint = item_fingerprint(item)
-        if fingerprint in seen_fingerprints:
-            continue
-        score = score_item(item, source_lookup)
-        if score < min_score:
-            continue
-        if fingerprint in fingerprints:
-            continue
-        fingerprints.add(fingerprint)
-        candidates.append(item)
-
-    candidates.sort(
-        key=lambda item: (
-            item.score,
-            item.published_at or datetime.min.replace(tzinfo=UTC),
-        ),
-        reverse=True,
+    candidates = candidate_items(
+        items,
+        sources,
+        seen_ids,
+        seen_fingerprints,
+        item_id,
+        item_fingerprint,
+        max_candidates=max(max_items * 4, max_items),
+        min_score=min_score,
+        lookback_hours=lookback_hours,
     )
 
     selected: list[NewsItem] = []
@@ -488,3 +472,42 @@ def select_items(
             selected_ids.add(identifier)
 
     return selected
+
+
+def candidate_items(
+    items: list[NewsItem],
+    sources: list[Source],
+    seen_ids: set[str],
+    seen_fingerprints: set[str],
+    item_id,
+    item_fingerprint,
+    max_candidates: int,
+    min_score: int,
+    lookback_hours: int,
+) -> list[NewsItem]:
+    source_lookup = {source.name: source for source in sources}
+    candidates: list[NewsItem] = []
+    fingerprints: set[str] = set()
+
+    for item in items:
+        if not is_recent(item, lookback_hours):
+            continue
+        if item_id(item) in seen_ids:
+            continue
+        fingerprint = item_fingerprint(item)
+        if fingerprint in seen_fingerprints or fingerprint in fingerprints:
+            continue
+        score = score_item(item, source_lookup)
+        if score < min_score:
+            continue
+        fingerprints.add(fingerprint)
+        candidates.append(item)
+
+    candidates.sort(
+        key=lambda item: (
+            item.score,
+            item.published_at or datetime.min.replace(tzinfo=UTC),
+        ),
+        reverse=True,
+    )
+    return candidates[:max_candidates]

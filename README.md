@@ -43,7 +43,7 @@ TELEGRAM_CHAT_ID=@your_channel_username
 GEMINI_API_KEY=optional_google_ai_studio_key
 ```
 
-`GEMINI_API_KEY` optional hai. Empty rahe to normal template post hoga. Key set karoge to bot raw RSS items ko Gemini se detailed exam-ready English me polish karega: `What happened`, `Exam angle`, aur `Remember`.
+`GEMINI_API_KEY` optional hai. Key set karoge to Gemini final editor ki tarah kaam karega: last 24 hours ke fresh candidates me se important items select karega, source/detail text dekh kar detailed English post banayega, aur low-value items skip karega. Agar important latest news nahi mili to bot kuch post nahi karega.
 
 4. Dry run karke template preview dekho:
 
@@ -91,7 +91,7 @@ Custom schedule, for example 3 baar daily:
 bash scripts/install_linux_cron.sh 07:00 14:00 20:00
 ```
 
-Cron har run me latest news fetch karega, Gemini enabled hai to content polish karega, aur sirf new items Telegram me post karega. Agar new news nahi mili to bot kuch post nahi karega. Duplicate protection `data/posted_state.json` me source IDs aur title fingerprints save karke repeat posts rokta hai.
+Cron har run me last 24 hours ki latest news fetch karega. Gemini enabled hai to wahi decide karega ki kaunsi news share karni hai aur kaunsi skip karni hai. Agar important latest news nahi mili to bot kuch post nahi karega. Duplicate protection `data/posted_state.json` me source IDs aur title fingerprints save karke repeat posts rokta hai.
 
 Check automation:
 
@@ -108,13 +108,13 @@ Preview latest current affairs:
 py -3 -B -m banking_news_bot --dry-run --max-items 10
 ```
 
-Fetch wider window:
+Fetch wider window for testing:
 
 ```powershell
 py -3 -B -m banking_news_bot --dry-run --lookback-hours 72
 ```
 
-Default lookback 168 hours hai, taaki Budget, Books, Awards aur Defence Exercises jaise low-frequency exam topics miss na hon. Duplicate state same update ko dobara post nahi hone deta.
+Default lookback 24 hours hai. Production automation me ise 24 hi rakhna recommended hai, taaki week-old news post na ho.
 
 Show source list:
 
@@ -128,7 +128,7 @@ py -3 -B -m banking_news_bot --check-config
 - Duplicate post state: `data/posted_state.json`
 - Ranking keywords: [banking_news_bot/filtering.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/filtering.py)
 - Telegram template: [banking_news_bot/formatter.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/formatter.py)
-- Gemini polish prompt/API: [banking_news_bot/gemini.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/gemini.py)
+- Gemini editor/selection prompt/API: [banking_news_bot/gemini.py](C:/Users/chinm/Documents/bankingcabot/banking_news_bot/gemini.py)
 
 Duplicate protection: bot source link IDs ke saath title fingerprints bhi store karta hai in `data/posted_state.json`. Agar ek Telegram message send ho chuka ho aur later chunk fail ho jaye, sent items turant state me mark ho jaate hain so next run me repost nahi hote.
 

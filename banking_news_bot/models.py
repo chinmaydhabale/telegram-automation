@@ -21,6 +21,7 @@ class NewsItem:
     feed_name: str
     category: str
     summary: str = ""
+    source_excerpt: str = ""
     published_at: datetime | None = None
     score: int = 0
     tags: list[str] = field(default_factory=list)

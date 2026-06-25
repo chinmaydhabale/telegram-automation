@@ -65,6 +65,7 @@ class Settings:
     gemini_api_key: str
     gemini_model: str
     gemini_enabled: bool
+    gemini_candidate_limit: int
     max_items: int
     lookback_hours: int
     min_score: int
@@ -82,8 +83,9 @@ def load_settings() -> Settings:
         gemini_api_key=os.getenv("GEMINI_API_KEY", "").strip(),
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite").strip(),
         gemini_enabled=env_bool("GEMINI_ENABLED", True),
+        gemini_candidate_limit=env_int("GEMINI_CANDIDATE_LIMIT", 30),
         max_items=env_int("MAX_ITEMS", 15),
-        lookback_hours=env_int("LOOKBACK_HOURS", 168),
+        lookback_hours=env_int("LOOKBACK_HOURS", 24),
         min_score=env_int("MIN_SCORE", 4),
         dry_run=env_bool("DRY_RUN", False),
         disable_web_page_preview=env_bool("DISABLE_WEB_PAGE_PREVIEW", True),

@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import sys
 
+from .article_reader import enrich_articles
 from .feed_reader import fetch_all
-from .filtering import select_items
+from .filtering import candidate_items, select_items
 from .formatter import build_message_chunks
-from .gemini import GeminiError, polish_items
+from .gemini import GeminiError, select_and_write_items
 from .settings import load_settings, load_sources
 from .state import BotState, item_fingerprint, item_id
 from .telegram import send_message
@@ -53,28 +54,54 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Warning: {error}", file=sys.stderr)
 
     state = BotState.load(settings.state_file)
-    selected_items = select_items(
-        fetched_items,
-        sources,
-        state.seen_ids(),
-        state.seen_fingerprints(),
-        item_id,
-        item_fingerprint,
-        max_items=max_items,
-        min_score=min_score,
-        lookback_hours=lookback_hours,
-    )
+    if settings.gemini_enabled and settings.gemini_api_key:
+        candidates = candidate_items(
+            fetched_items,
+            sources,
+            state.seen_ids(),
+            state.seen_fingerprints(),
+            item_id,
+            item_fingerprint,
+            max_candidates=settings.gemini_candidate_limit,
+            min_score=min_score,
+            lookback_hours=lookback_hours,
+        )
+        if not candidates:
+            print("No fresh unposted candidates found in the configured time window.")
+            return 0
+
+        print(f"Reading source pages for {len(candidates)} candidates...")
+        article_errors = enrich_articles(candidates)
+        for error in article_errors[:8]:
+            print(f"Warning: article fetch failed: {error}", file=sys.stderr)
+
+        try:
+            print(f"Gemini is selecting important news from {len(candidates)} candidates...")
+            selected_items = select_and_write_items(
+                candidates,
+                settings.gemini_api_key,
+                settings.gemini_model,
+                max_items=max_items,
+            )
+        except GeminiError as exc:
+            print(f"Warning: {exc}. No Telegram post was sent.", file=sys.stderr)
+            return 0
+    else:
+        selected_items = select_items(
+            fetched_items,
+            sources,
+            state.seen_ids(),
+            state.seen_fingerprints(),
+            item_id,
+            item_fingerprint,
+            max_items=max_items,
+            min_score=min_score,
+            lookback_hours=lookback_hours,
+        )
 
     if not selected_items:
-        print("No new current-affairs items matched the filters.")
+        print("No latest important news selected. Nothing to post.")
         return 0
-
-    if settings.gemini_enabled and settings.gemini_api_key:
-        try:
-            print(f"Polishing {len(selected_items)} items with Gemini...")
-            polish_items(selected_items, settings.gemini_api_key, settings.gemini_model)
-        except GeminiError as exc:
-            print(f"Warning: {exc}. Continuing with normal template.", file=sys.stderr)
 
     message_chunks = build_message_chunks(selected_items)
     messages = [message for message, _items in message_chunks]
